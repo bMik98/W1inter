@@ -9,9 +9,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-
-        <!---->
-
         <!--TEST-->
         <dependency>
             <groupId>junit</groupId>
@@ -35,7 +32,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -65,7 +61,7 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <linkXRef>false</linkXRef>
+                            <!-- linkXRef>false</linkXRef -->
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -75,6 +71,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
