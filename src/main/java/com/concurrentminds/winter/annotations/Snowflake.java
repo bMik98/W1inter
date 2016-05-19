@@ -1,4 +1,4 @@
-package com.winter.annotations;
+package com.concurrentminds.winter.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
