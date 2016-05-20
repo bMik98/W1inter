@@ -2,6 +2,7 @@ package com.concurrentminds.winter.context;
 
 import com.concurrentminds.winter.annotations.Copied;
 import com.concurrentminds.winter.annotations.Denied;
+import com.concurrentminds.winter.annotations.Report;
 import com.concurrentminds.winter.annotations.Snowflake;
 import com.concurrentminds.winter.exceptions.SnowflakeDeniedException;
 import com.concurrentminds.winter.exceptions.SnowflakeDoesNotExistException;
@@ -43,7 +44,11 @@ public class Winter {
             throws SnowflakeNameDuplicationException, IllegalAccessException, InstantiationException {
         classes.clear();
         instances.clear();
-        List<Class> classList = reflection.getClasses(packageName).withAnnotation(Snowflake.class);
+
+        List<Class> classList = reflection.getClasses(packageName)
+                .withAnnotation(Snowflake.class)
+                .get();
+
         for (Class item : classList) {
             Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
                 if (!classes.containsKey(snowflake.value())) {
@@ -54,6 +59,12 @@ public class Winter {
                     throw new SnowflakeNameDuplicationException(snowflake.value());
                 }
         }
+
+        List<Class> reportClasses = reflection.getClasses(packageName)
+                .withAnnotation(Snowflake.class)
+                .and(Report.class)
+                .get();
+
     }
 
     public Object getSnowflake(String snowflakeName)

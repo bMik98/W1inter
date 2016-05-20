@@ -8,7 +8,11 @@ public interface Reflection {
 
     Reflection getClasses(String packageName);
 
-    List<Class> withAnnotation(Class annotation);
+    Reflection withAnnotation(Class annotation);
+
+    Reflection and(Class annotation);
+
+    List<Class> get();
 
 
 }

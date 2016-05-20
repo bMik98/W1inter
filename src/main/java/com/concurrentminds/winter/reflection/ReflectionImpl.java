@@ -36,12 +36,24 @@ public class ReflectionImpl implements Reflection {
     }
 
     @Override
-    public List<Class> withAnnotation(Class annotation) {
-        return this.classes.stream()
+    public Reflection withAnnotation(Class annotation) {
+        this.classes = this.classes.stream()
                 .filter(e -> e.getAnnotation(annotation) != null)
                 .collect(Collectors.toList());
+        return this;
     }
 
+    @Override
+    public Reflection and(Class annotation) {
+        this.classes = withAnnotation(annotation).get();
+        return this;
+    }
+
+
+    @Override
+    public List<Class> get() {
+        return this.classes;
+    }
 
     private List<Class<?>> find(File file, String scannedPackage) {
         List<Class<?>> classes = new ArrayList<>();
