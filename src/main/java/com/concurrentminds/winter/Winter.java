@@ -8,11 +8,17 @@ import com.concurrentminds.winter.exceptions.SnowflakeDoesNotExistException;
 import com.concurrentminds.winter.exceptions.SnowflakeNameDuplicationException;
 import com.concurrentminds.winter.utils.ContextUtil;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Winter {
+
+    private final static Logger logger = LogManager.getLogger(Winter.class);
+
     private Map<String, Class<?>> classes;
     private Map<String, Object> instances;
 
@@ -40,7 +46,7 @@ public class Winter {
             if (snowflake != null) {
                 if (!classes.containsKey(snowflake.value())) {
                     classes.put(snowflake.value(), item);
-                    System.out.println(snowflake.value() + " " + item.getSimpleName());
+                    logger.debug(snowflake.value() + " " + item.getSimpleName());
                     instances.put(snowflake.value(), item.newInstance());
                 } else {
                     throw new SnowflakeNameDuplicationException(snowflake.value());

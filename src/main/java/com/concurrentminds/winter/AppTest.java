@@ -3,8 +3,13 @@ package com.concurrentminds.winter;
 import com.concurrentminds.winter.test.FlakeBear;
 import com.concurrentminds.winter.test.FlakeHare;
 import com.concurrentminds.winter.test.FlakeOx;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AppTest {
+
+    private final static Logger logger = LogManager.getLogger(AppTest.class);
+
     public static void main(String[] args) {
         new AppTest().run();
     }
