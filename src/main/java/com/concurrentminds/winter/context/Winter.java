@@ -52,7 +52,7 @@ public class Winter {
         reportSnowflakes(reportClasses);
     }
 
-    public void clean() {
+    private void clean() {
         classes.clear();
         instances.clear();
     }

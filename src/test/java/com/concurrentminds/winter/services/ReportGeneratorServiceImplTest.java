@@ -3,9 +3,6 @@ package com.concurrentminds.winter.services;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 public class ReportGeneratorServiceImplTest {
 
     @Test
@@ -30,7 +27,5 @@ public class ReportGeneratorServiceImplTest {
         //asserts
         Assert.assertEquals(path, result);
     }
-
-
 }
 
