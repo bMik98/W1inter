@@ -4,7 +4,7 @@ import com.concurrentminds.winter.annotations.Report;
 import com.concurrentminds.winter.annotations.Snowflake;
 
 @Snowflake("Fast")
-@Report("d:/reports/FlakeHare.txt")
+@Report("C:\\project\\W1inter\\src\\main\\resources\\")
 public class FlakeHare implements FlakeAnimal {
     private String name;
     private int number = 300;

@@ -10,6 +10,8 @@ import com.concurrentminds.winter.exceptions.SnowflakeNameDuplicationException;
 
 import com.concurrentminds.winter.reflection.Reflection;
 import com.concurrentminds.winter.reflection.ReflectionImpl;
+import com.concurrentminds.winter.services.ReportGeneratorService;
+import com.concurrentminds.winter.services.ReportGeneratorServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,11 +24,13 @@ public class Winter {
     private final static Logger logger = LogManager.getLogger(Winter.class);
 
     private final Reflection reflection;
-    private Map<String, Class<?>> classes;
+    private final ReportGeneratorService reportService;
+    private Map<String, Class> classes;
     private Map<String, Object> instances;
 
     public Winter() {
         this.reflection = new ReflectionImpl();
+        this.reportService = new ReportGeneratorServiceImpl();
         classes = new HashMap<>();
         instances = new HashMap<>();
     }
@@ -64,6 +68,12 @@ public class Winter {
                 .withAnnotation(Snowflake.class)
                 .and(Report.class)
                 .get();
+
+        reportClasses.parallelStream().forEach(e -> {
+            Report report = (Report) e.getAnnotation(Report.class);
+            Snowflake bean = (Snowflake) e.getAnnotation(Snowflake.class);
+            reportService.generateReport(report.value(), bean.value(), e);
+        });
 
     }
 
