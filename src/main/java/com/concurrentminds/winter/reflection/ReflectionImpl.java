@@ -1,4 +1,4 @@
-package com.concurrentminds.winter.utils;
+package com.concurrentminds.winter.reflection;
 
 import java.io.File;
 import java.net.URL;
@@ -7,13 +7,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ContextUtil {
+public class ReflectionImpl implements Reflection {
+
     private static final char PKG_SEPARATOR = '.';
     private static final char DIR_SEPARATOR = '/';
     private static final String CLASS_FILE_SUFFIX = ".class";
     private static final String BAD_PACKAGE_ERROR = "Unable to get resources from path '%s'. Are you sure the package '%s' exists?";
 
-    public List<Class<?>> getClassesFromPackage(String packageName) throws IllegalArgumentException {
+    private List<Class> classes = new ArrayList<>();
+
+    @Override
+    public List<Class> getClassesFromPackage(String packageName) {
         String scannedPath = packageName.replace(PKG_SEPARATOR, DIR_SEPARATOR);
         URL scannedUrl = Thread.currentThread().getContextClassLoader().getResource(scannedPath);
         if (scannedUrl == null) {
@@ -24,6 +28,20 @@ public class ContextUtil {
                 .flatMap(e -> find(e, packageName).stream())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Reflection getClasses(String packageName) {
+        this.classes = getClassesFromPackage(packageName);
+        return this;
+    }
+
+    @Override
+    public List<Class> withAnnotation(Class annotation) {
+        return this.classes.stream()
+                .filter(e -> e.getAnnotation(annotation) != null)
+                .collect(Collectors.toList());
+    }
+
 
     private List<Class<?>> find(File file, String scannedPackage) {
         List<Class<?>> classes = new ArrayList<>();

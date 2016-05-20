@@ -1,8 +1,6 @@
-package com.concurrentminds.winter;
+package com.concurrentminds.winter.test;
 
-import com.concurrentminds.winter.test.FlakeBear;
-import com.concurrentminds.winter.test.FlakeHare;
-import com.concurrentminds.winter.test.FlakeOx;
+import com.concurrentminds.winter.context.Winter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

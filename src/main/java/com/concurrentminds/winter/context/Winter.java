@@ -1,4 +1,4 @@
-package com.concurrentminds.winter;
+package com.concurrentminds.winter.context;
 
 import com.concurrentminds.winter.annotations.Copied;
 import com.concurrentminds.winter.annotations.Denied;
@@ -6,8 +6,9 @@ import com.concurrentminds.winter.annotations.Snowflake;
 import com.concurrentminds.winter.exceptions.SnowflakeDeniedException;
 import com.concurrentminds.winter.exceptions.SnowflakeDoesNotExistException;
 import com.concurrentminds.winter.exceptions.SnowflakeNameDuplicationException;
-import com.concurrentminds.winter.utils.ContextUtil;
 
+import com.concurrentminds.winter.reflection.Reflection;
+import com.concurrentminds.winter.reflection.ReflectionImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,10 +20,12 @@ public class Winter {
 
     private final static Logger logger = LogManager.getLogger(Winter.class);
 
+    private final Reflection reflection;
     private Map<String, Class<?>> classes;
     private Map<String, Object> instances;
 
     public Winter() {
+        this.reflection = new ReflectionImpl();
         classes = new HashMap<>();
         instances = new HashMap<>();
     }
@@ -32,7 +35,7 @@ public class Winter {
         try {
             addSnowflakes(packageName);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception in loading classes from package", e);
         }
     }
 
@@ -40,10 +43,9 @@ public class Winter {
             throws SnowflakeNameDuplicationException, IllegalAccessException, InstantiationException {
         classes.clear();
         instances.clear();
-        List<Class<?>> classList = new ContextUtil().getClassesFromPackage(packageName);
+        List<Class> classList = reflection.getClasses(packageName).withAnnotation(Snowflake.class);
         for (Class item : classList) {
             Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
-            if (snowflake != null) {
                 if (!classes.containsKey(snowflake.value())) {
                     classes.put(snowflake.value(), item);
                     logger.debug(snowflake.value() + " " + item.getSimpleName());
@@ -51,7 +53,6 @@ public class Winter {
                 } else {
                     throw new SnowflakeNameDuplicationException(snowflake.value());
                 }
-            }
         }
     }
 
@@ -60,7 +61,7 @@ public class Winter {
         if (!classes.containsKey(snowflakeName)) {
             throw new SnowflakeDoesNotExistException(snowflakeName);
         }
-        Class<?> cl = classes.get(snowflakeName);
+        Class cl = classes.get(snowflakeName);
         if (cl.isAnnotationPresent(Denied.class)) {
             throw new SnowflakeDeniedException(snowflakeName);
         }
