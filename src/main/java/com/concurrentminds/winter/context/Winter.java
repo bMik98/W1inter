@@ -16,9 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Winter {
-    public static final String ERROR_DENIED = "Access to snowflake `%s` was denied";
-    public static final String ERROR_NOT_EXISTS = "Snowflake `%s` does not exist";
-    public static final String ERROR_DUPLICATION = "Snowflake `%s` already exists";
+    public static final String ERROR_DENIED
+            = "Access to snowflake `%s` was denied";
+    public static final String ERROR_NOT_EXISTS
+            = "Snowflake `%s` does not exist";
+    public static final String ERROR_DUPLICATION
+            = "Snowflake `%s` already exists";
     private final static Logger logger = LogManager.getLogger(Winter.class);
     private final Reflection reflection;
     private final ReportGeneratorService reportService;
@@ -39,7 +42,7 @@ public class Winter {
         addSnowflakes(packageName);
     }
 
-    public void addSnowflakes(String packageName) {
+    public int addSnowflakes(String packageName) {
         clean();
         List<Class> classList = reflection.getClasses(packageName)
                 .withAnnotation(Snowflake.class)
@@ -50,6 +53,7 @@ public class Winter {
                 .and(Report.class)
                 .get();
         reportSnowflakes(reportClasses);
+        return classes.size();
     }
 
     private void clean() {
@@ -57,7 +61,7 @@ public class Winter {
         instances.clear();
     }
 
-    public void gatherSnowflakes(List<Class> classList) {
+    private void gatherSnowflakes(List<Class> classList) {
         for (Class item : classList) {
             Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
             if (!classes.containsKey(snowflake.value())) {
@@ -72,7 +76,7 @@ public class Winter {
         }
     }
 
-    public void reportSnowflakes(List<Class> reportClasses) {
+    private void reportSnowflakes(List<Class> reportClasses) {
         reportClasses.parallelStream().forEach(e -> {
             Report report = (Report) e.getAnnotation(Report.class);
             Snowflake bean = (Snowflake) e.getAnnotation(Snowflake.class);
