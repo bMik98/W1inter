@@ -5,10 +5,17 @@ import com.concurrentminds.winter.annotations.Snowflake;
 
 @Snowflake("Sly")
 @Denied
-public class FlakeFox implements FlakeAnimal{
+public class FlakeFox implements FlakeAnimal {
+    private int number = 200;
+
     @Override
-    public int number() {
-        return 200;
+    public int getNumber() {
+        return number;
+    }
+
+    @Override
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     @Override

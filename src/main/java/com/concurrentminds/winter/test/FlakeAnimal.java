@@ -1,6 +1,7 @@
 package com.concurrentminds.winter.test;
 
 public interface FlakeAnimal {
-    int number();
+    void setNumber(int number);
+    int getNumber();
     String voice();
 }

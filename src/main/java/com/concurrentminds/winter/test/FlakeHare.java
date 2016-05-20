@@ -7,6 +7,7 @@ import com.concurrentminds.winter.annotations.Snowflake;
 @Report("d:/reports/FlakeHare.txt")
 public class FlakeHare implements FlakeAnimal {
     private String name;
+    private int number = 300;
 
     public String getName() {
         return name;
@@ -17,7 +18,6 @@ public class FlakeHare implements FlakeAnimal {
     }
 
     public FlakeHare() {
-        printPrivateNumber(100);
     }
 
     public FlakeHare(final String name) {
@@ -25,16 +25,17 @@ public class FlakeHare implements FlakeAnimal {
     }
 
     @Override
-    public int number() {
-        return 100;
+    public int getNumber() {
+        return number;
+    }
+
+    @Override
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     @Override
     public String voice() {
         return "HareHare";
-    }
-
-    private void printPrivateNumber(final int number) {
-        System.out.println(number);
     }
 }

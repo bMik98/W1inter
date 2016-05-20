@@ -6,9 +6,16 @@ import com.concurrentminds.winter.annotations.Snowflake;
 @Snowflake("Brave")
 @Copied
 public class FlakeBear implements FlakeAnimal {
+    private int number = 100;
+
     @Override
-    public int number() {
-        return 300;
+    public int getNumber() {
+        return number;
+    }
+
+    @Override
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     @Override
