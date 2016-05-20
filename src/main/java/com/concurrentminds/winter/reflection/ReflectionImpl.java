@@ -55,8 +55,8 @@ public class ReflectionImpl implements Reflection {
         return this.classes;
     }
 
-    private List<Class<?>> find(File file, String scannedPackage) {
-        List<Class<?>> classes = new ArrayList<>();
+    private List<Class> find(File file, String scannedPackage) {
+        List<Class> classes = new ArrayList<>();
         String resource = scannedPackage + PKG_SEPARATOR + file.getName();
         if (file.isDirectory()) {
             Stream.of(file.listFiles()).forEach(e -> find(e, resource));
