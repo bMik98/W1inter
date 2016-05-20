@@ -27,6 +27,11 @@ public class AppTest {
             flakeBear2.setNumber(3002);
             System.out.printf("flakeBear #: %d  flakeBear2 #: %d %n", flakeBear.getNumber(), flakeBear2.getNumber());
             FlakeHare flakeHare = (FlakeHare) winter.getSnowflake("Fast");
+            flakeHare.setName("little rabbit");
+            System.out.println(flakeHare.getName());
+            FlakeHare flakeHare2 = (FlakeHare) winter.getSnowflake("Fast");
+            System.out.println(flakeHare2.getName());
+
             //FlakeFox flakeFox = (FlakeFox) winter.getSnowflake("Sly");
         } catch (Exception e) {
             e.printStackTrace();
