@@ -13,6 +13,4 @@ public interface Reflection {
     Reflection and(Class annotation);
 
     List<Class> get();
-
-
 }

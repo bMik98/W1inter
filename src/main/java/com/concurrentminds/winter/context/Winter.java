@@ -4,10 +4,6 @@ import com.concurrentminds.winter.annotations.Copied;
 import com.concurrentminds.winter.annotations.Denied;
 import com.concurrentminds.winter.annotations.Report;
 import com.concurrentminds.winter.annotations.Snowflake;
-import com.concurrentminds.winter.exceptions.SnowflakeDeniedException;
-import com.concurrentminds.winter.exceptions.SnowflakeDoesNotExistException;
-import com.concurrentminds.winter.exceptions.SnowflakeNameDuplicationException;
-
 import com.concurrentminds.winter.reflection.Reflection;
 import com.concurrentminds.winter.reflection.ReflectionImpl;
 import com.concurrentminds.winter.services.ReportGeneratorService;
@@ -20,75 +16,98 @@ import java.util.List;
 import java.util.Map;
 
 public class Winter {
-
+    public static final String ERROR_DENIED = "Access to snowflake `%s` was denied";
+    public static final String ERROR_NOT_EXISTS = "Snowflake `%s` does not exist";
+    public static final String ERROR_DUPLICATION = "Snowflake `%s` already exists";
     private final static Logger logger = LogManager.getLogger(Winter.class);
-
     private final Reflection reflection;
     private final ReportGeneratorService reportService;
     private Map<String, Class> classes;
     private Map<String, Object> instances;
+    private String lastError;
 
     public Winter() {
         this.reflection = new ReflectionImpl();
         this.reportService = new ReportGeneratorServiceImpl();
-        classes = new HashMap<>();
-        instances = new HashMap<>();
+        this.classes = new HashMap<>();
+        this.instances = new HashMap<>();
+        lastError = "";
     }
 
     public Winter(String packageName) {
         this();
-        try {
-            addSnowflakes(packageName);
-        } catch (Exception e) {
-            logger.error("Exception in loading classes from package", e);
-        }
+        addSnowflakes(packageName);
     }
 
-    public void addSnowflakes(String packageName)
-            throws SnowflakeNameDuplicationException, IllegalAccessException, InstantiationException {
-        classes.clear();
-        instances.clear();
-
+    public void addSnowflakes(String packageName) {
+        clean();
         List<Class> classList = reflection.getClasses(packageName)
                 .withAnnotation(Snowflake.class)
                 .get();
-
-        for (Class item : classList) {
-            Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
-                if (!classes.containsKey(snowflake.value())) {
-                    classes.put(snowflake.value(), item);
-                    logger.debug(snowflake.value() + " " + item.getSimpleName());
-                    instances.put(snowflake.value(), item.newInstance());
-                } else {
-                    throw new SnowflakeNameDuplicationException(snowflake.value());
-                }
-        }
-
+        gatherSnowflakes(classList);
         List<Class> reportClasses = reflection.getClasses(packageName)
                 .withAnnotation(Snowflake.class)
                 .and(Report.class)
                 .get();
+        reportSnowflakes(reportClasses);
+    }
 
+    public void clean() {
+        classes.clear();
+        instances.clear();
+    }
+
+    public void gatherSnowflakes(List<Class> classList) {
+        for (Class item : classList) {
+            Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
+            if (!classes.containsKey(snowflake.value())) {
+                classes.put(snowflake.value(), item);
+                logger.debug(snowflake.value() + " " + item.getSimpleName());
+                instances.put(snowflake.value(), createInstance(item));
+            } else {
+                lastError = String.format(ERROR_DUPLICATION, snowflake.value());
+                logger.error(lastError);
+                return;
+            }
+        }
+    }
+
+    public void reportSnowflakes(List<Class> reportClasses) {
         reportClasses.parallelStream().forEach(e -> {
             Report report = (Report) e.getAnnotation(Report.class);
             Snowflake bean = (Snowflake) e.getAnnotation(Snowflake.class);
             reportService.generateReport(report.value(), bean.value(), e);
         });
-
     }
 
-    public Object getSnowflake(String snowflakeName)
-            throws SnowflakeDoesNotExistException, SnowflakeDeniedException, IllegalAccessException, InstantiationException {
+    public Object getSnowflake(String snowflakeName) {
         if (!classes.containsKey(snowflakeName)) {
-            throw new SnowflakeDoesNotExistException(snowflakeName);
+            lastError = String.format(ERROR_NOT_EXISTS, snowflakeName);
+            logger.error(lastError);
+            return null;
         }
-        Class cl = classes.get(snowflakeName);
-        if (cl.isAnnotationPresent(Denied.class)) {
-            throw new SnowflakeDeniedException(snowflakeName);
+        Class c = classes.get(snowflakeName);
+        if (c.isAnnotationPresent(Denied.class)) {
+            lastError = String.format(ERROR_DENIED, snowflakeName);
+            logger.error(lastError);
+            return null;
         }
-        if (cl.isAnnotationPresent(Copied.class)) {
-            return cl.newInstance();
+        return (c.isAnnotationPresent(Copied.class)) ? createInstance(c) : instances.get(snowflakeName);
+    }
+
+    public Object createInstance(Class<?> c) {
+        Object object;
+        try {
+            object = c.newInstance();
+        } catch (Exception e) {
+            lastError = e.getMessage();
+            logger.error(lastError);
+            return null;
         }
-        return instances.get(snowflakeName);
+        return object;
+    }
+
+    public String getLastError() {
+        return lastError;
     }
 }
