@@ -5,5 +5,14 @@ import com.concurrentminds.winter.annotations.Snowflake;
 
 @Snowflake("Brave")
 @Copied
-public class FlakeBear {
+public class FlakeBear implements FlakeAnimal {
+    @Override
+    public int number() {
+        return 300;
+    }
+
+    @Override
+    public String voice() {
+        return "Beeeeeaar";
+    }
 }

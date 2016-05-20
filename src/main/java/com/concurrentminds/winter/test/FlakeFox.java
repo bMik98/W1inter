@@ -5,5 +5,14 @@ import com.concurrentminds.winter.annotations.Snowflake;
 
 @Snowflake("Sly")
 @Denied
-public class FlakeFox {
+public class FlakeFox implements FlakeAnimal{
+    @Override
+    public int number() {
+        return 200;
+    }
+
+    @Override
+    public String voice() {
+        return "WathWath";
+    }
 }

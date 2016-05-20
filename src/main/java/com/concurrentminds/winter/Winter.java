@@ -1,5 +1,7 @@
 package com.concurrentminds.winter;
 
+import com.concurrentminds.winter.annotations.Snowflake;
+import com.concurrentminds.winter.exceptions.SnowflakeNameDuplicationException;
 import com.concurrentminds.winter.utils.ContextUtil;
 
 import java.util.HashMap;
@@ -15,13 +17,27 @@ public class Winter {
 
     public Winter(String packageName) {
         this();
-        addSnowflakes(packageName);
+        try {
+            addSnowflakes(packageName);
+        } catch (SnowflakeNameDuplicationException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addSnowflakes(String packageName) {
+    public void addSnowflakes(String packageName) throws SnowflakeNameDuplicationException {
         classes.clear();
         List<Class<?>> classList = new ContextUtil().getClassesFromPackage(packageName);
-        System.out.println(classList.size());
+        for (Class item : classList) {
+            Snowflake snowflake = (Snowflake) item.getAnnotation(Snowflake.class);
+            if (snowflake != null) {
+                if (!classes.containsKey(snowflake.value())) {
+                    classes.put(snowflake.value(), item);
+                    System.out.println(snowflake.value() + " " + item.getSimpleName());
+                } else {
+                    throw new SnowflakeNameDuplicationException(snowflake.value());
+                }
+            }
+        }
     }
 
     public Object getSnowflake(String snowflakeName) {
