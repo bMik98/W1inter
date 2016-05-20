@@ -27,6 +27,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(getContent(clazz, Strings.EMPTY));
                 writer.flush();
+                logger.info("Report was generated in = " + file.getAbsolutePath());
             } catch (IOException e) {
                 logger.error("Exception while creating class report.", e);
             }
